@@ -1,24 +1,17 @@
 import os
-import datetime
-import time
-import shutil
-import ctypes
 import sys
-import json
 import tkinter as tk
 import sqlite3
-from admin import AdminPanelWindow
-import database
-import pdf_creation
-import mount_system
-import framing_math
-import pandas as pd
-from database import get_db_path, resource_path
-from tkinter import messagebox, ttk, filedialog
+from tkinter import messagebox
+
+# Modular Standalone View Class Imports
 from admin import AdminPanelWindow
 from search_window import SearchWindow
 from order_system import OrderSystemWindow
 from mount_designer import MountDesignerWindow
+
+import database
+from database import resource_path
 
 class FramingAppUI:
 
@@ -176,7 +169,7 @@ class FramingAppUI:
         def handle_designer_return(price, total_w, total_h, packaged_data):
             self.current_mount_data = packaged_data
             if update_callback:
-                update_callback(price, total_w, total_h)
+                update_callback(price, total_w, total_h, packaged_data)
 
         MountDesignerWindow(
             parent=self.root,

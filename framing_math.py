@@ -14,8 +14,11 @@ def calculate_order_dimensions(item_width, item_height, mount_required=False, mo
       print(f"Error calculating order dimensions: {e}")
       return 0.0, 0.0
 
-def calculate_extra_fees(mount_required, current_mount_data, delivery_required, base_mount_price: float = 20.0, extra_aperture_fee: float = 2.0) -> tuple:
-
+def calculate_extra_fees(mount_required, current_mount_data, delivery_required, dynamic_base_price: float, extra_aperture_fee: float = 2.0) -> tuple:
+   """
+   Calculates transactional layout fees based on dynamic tier matrix valuations
+   and iterative multi-aperture matrix configuration spacing variables.
+   """
    mount_fee = 0.0
    delivery_fee = 5.0 if delivery_required else 0.0
 
@@ -27,10 +30,10 @@ def calculate_extra_fees(mount_required, current_mount_data, delivery_required, 
             cols = int(current_mount_data['cols'] or 1)
             total_apertures = rows * cols
          except (ValueError, TypeError) as e:
-            print(f"Error calculating total apertures: {e}")
             total_apertures = 1
    
       extra_apertures = max(0, total_apertures - 1)
-      mount_fee = base_mount_price + (extra_apertures * extra_aperture_fee)
+      # Use the verified dynamic database price passed from the controller instead of a hardcoded fallback
+      mount_fee = dynamic_base_price + (extra_apertures * extra_aperture_fee)
 
    return mount_fee, delivery_fee

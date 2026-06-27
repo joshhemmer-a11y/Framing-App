@@ -9,6 +9,7 @@ import framing_math
 import pdf_creation
 import database
 from database import resource_path
+from database import logger
 
 class OrderSystemWindow:
     """
@@ -16,6 +17,7 @@ class OrderSystemWindow:
     gathering comprehensive customer/delivery specs, and finalizing checkout orders.
     """
     def __init__(self, parent, db_path, branch_info, ui_instance, fid="None", fdesc="Manual", tid=None):
+        self.current_mount_data = None
         self.parent = parent
         self.db_path = db_path
         self.branch_info = branch_info
@@ -102,9 +104,10 @@ class OrderSystemWindow:
         self.ui_instance.open_mount_designer(
             caller_width=curr_tw, 
             caller_height=curr_th,
-            update_callback=lambda p, tw, th: [
+            update_callback=lambda p, tw, th, data: [
                 self.sv_mw.set(float(tw) - float(self.sv_w.get() or 0)),
                 self.sv_mh.set(float(th) - float(self.sv_h.get() or 0)),
+                setattr(self, 'current_mount_data', data),
                 self.calc_quote_price()
             ]
         )
@@ -161,8 +164,8 @@ class OrderSystemWindow:
             else:
                 self.rlbl.config(text="Enter valid Frame ID", fg="orange")
                 self.btn_prcd.config(state="disabled", bg="gray")
-        except: 
-            pass
+        except (ValueError, TypeError) as e: 
+            logger.error(f"Quote pricing error: {e}")
 
     def open_order_form(self, base_grid_price):
         self.owin = tk.Toplevel(self.parent)
@@ -255,12 +258,22 @@ class OrderSystemWindow:
                         (self.current_tid, tw, tw, th, th)    
                     ).fetchone()
                     if res: current_base = res[0]
+            
+            # 1. Fetch the dynamic mount baseline matrix price based on current sizing boundaries
+            db_mount_base = database.get_tiered_price(tw, th, 1)
                     
+            # 2. Compute dynamic fees via our unified humanized layout structure matrix
             mount_fee, delivery_fee = framing_math.calculate_extra_fees(
                 mount_required=self.order_m_req.get(),
-                current_mount_data=self.ui_instance.current_mount_data,
+                current_mount_data=self.current_mount_data,
+                dynamic_base_price=db_mount_base,  # 👈 Added the missing trailing comma!
                 delivery_required=self.order_d_req.get()
             )
+            
+            # Guard logic override: if mount isn't requested, fee is zero
+            if not self.order_m_req.get():
+                mount_fee = 0.0
+
             total_price = current_base + mount_fee + delivery_fee
             self.sum_lbl.config(text=(
                 f"GLASS SIZE: {tw}x{th}mm\n"
@@ -272,6 +285,8 @@ class OrderSystemWindow:
             ))
             return total_price, current_base
         except Exception as e:
+            # Let's log the actual exception to the terminal background for clean tracing
+            print(f"DEBUG Error inside update_summary execution pipeline: {e}")
             self.sum_lbl.config(text="Error calculating price...")
             return 0.0, 0.0
 
