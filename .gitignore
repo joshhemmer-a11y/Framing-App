@@ -1,0 +1,8 @@
+*.db
+*.db.bak
+*.bak
+*_backup.xlsx
+*.csv
+__pycache__/
+*.pyc
+*.pdf
