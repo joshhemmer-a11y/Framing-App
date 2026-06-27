@@ -1,7 +1,5 @@
-# mount_system.py
-
 def calculate_mount_geometry(orientation, raw_aw, raw_ah, raw_tw, raw_th, raw_rows, raw_cols, raw_br, raw_off):
-    # Your exact layout math runs here...
+    #Layout calculations based on orientation and provided dimensions
     if orientation == "Portrait":
         aw, ah = raw_ah, raw_aw
         tw, th = raw_th, raw_tw
@@ -17,7 +15,6 @@ def calculate_mount_geometry(orientation, raw_aw, raw_ah, raw_tw, raw_th, raw_ro
     start_x = (tw - grid_w) / 2
     start_y = ((th - grid_h) / 2) - (raw_off / 2)
 
-    # HERE IS THE DICTIONARY: We pack the answers with clear names
     geometry_results = {
         "aw": aw,
         "ah": ah,
