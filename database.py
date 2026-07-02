@@ -86,6 +86,8 @@ def get_tiered_price(w: float, h: float, aps: int) -> float:
 def sync_database():
 
     if os.path.exists(DB_PATH):
+
+        #This is quite messy, but is there to make the local version work. This will be changed when migrating to cloud based server.
         
         try:
             shutil.copy(DB_PATH, DB_PATH + ".bak")
