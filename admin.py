@@ -7,10 +7,9 @@ import logging
 logger = logging.getLogger("MadeToMeasure")
 
 class AdminPanelWindow:
-    """
-    A standalone view class that completely handles the Admin Portal tools,
-    user management, system auditing, and data exports/imports.
-    """
+
+    #Admin panel: 2 user levels: Admin: can edit database and view logs, reset branch and add remove users. Manager: Can reset Branch
+    
     def __init__(self, parent, ui_instance, priv_level, current_user, db_path):
         self.parent = parent
         self.ui_instance = ui_instance
